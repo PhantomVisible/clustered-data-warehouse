@@ -4,15 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "fx_deal_errors")
+@Table(name = "fx_deal_errors") // 🗄️ Different table for errors
 public class DealError {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Store all the original data that failed
+
     @Column(name = "deal_unique_id")
-    private String dealUniqueId;
+    private String dealUniqueId; // 🔸 Optional - might not have it
 
     @Column(name = "from_currency", length = 3)
     private String fromCurrency;
@@ -26,21 +28,22 @@ public class DealError {
     @Column(name = "amount", precision = 19, scale = 4)
     private String amount; // 🚀 Store as String to preserve original format
 
-    @Column(name = "error_reason", nullable = false, length = 500)
+    @Column(name = "error_reason", nullable = false, length = 500) // ❓ Why it failed
     private String errorReason;
 
     @Column(name = "occurred_at", nullable = false)
-    private LocalDateTime occurredAt;
+    private LocalDateTime occurredAt; // ⏰ When the error happened
 
     // Default constructor
     public DealError() {
-        this.occurredAt = LocalDateTime.now();
+        this.occurredAt = LocalDateTime.now(); // 🕒 Auto-set error time
     }
 
-    // Constructor for validation errors
+    // Special constructor for validation errors
     public DealError(String dealUniqueId, String fromCurrency, String toCurrency,
                      LocalDateTime dealTimestamp, String amount, String errorReason) {
-        this();
+        this(); // Call default constructor
+        // Store all the original data
         this.dealUniqueId = dealUniqueId;
         this.fromCurrency = fromCurrency;
         this.toCurrency = toCurrency;
@@ -56,7 +59,6 @@ public class DealError {
         this.errorReason = errorReason;
     }
 
-    // 🚀 Removed System.out.println - we'll use proper logging in service
 
     // Getters and setters
     public Long getId() { return id; }

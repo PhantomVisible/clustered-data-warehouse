@@ -2,6 +2,7 @@ version: "3.8"
 services:
   db:
     image: mysql:9.5.0
+    # 🏷️ Name our container
     container_name: fx-mysql
     environment:
       MYSQL_ROOT_PASSWORD: Noragami12!
@@ -11,8 +12,8 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
-    healthcheck:
+      - mysql-data:/var/lib/mysql # 💾 Save data permanently
+    healthcheck: #  🩺 Check if database is healthy
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity // 🎯 This makes it a database table
 @Table(name = "fx_deals", uniqueConstraints = {
         @UniqueConstraint(columnNames = "deal_unique_id")  // 🚀 Prevents duplicate imports
 })
@@ -13,32 +13,37 @@ public class Deal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // 🆔 Internal ID - database auto-generates this (1, 2, 3...)
     private Long id;
 
+    // 💼 Business ID - from CSV file (D001, D002...)
     @NotBlank(message = "Deal Unique ID is required")
-    @Column(name = "deal_unique_id", nullable = false, unique = true)
+    @Column(name = "deal_unique_id", nullable = false, unique = true) // ❌ Can't be empty
     private String dealUniqueId;
 
+    // 💵 From Currency (USD, EUR, etc.)
     @NotBlank(message = "From Currency is required")
-    @Size(min = 3, max = 3, message = "From Currency must be exactly 3 characters")
-    @Column(name = "from_currency", nullable = false, length = 3)
+    @Size(min = 3, max = 3, message = "From Currency must be exactly 3 characters")// ✅ Must be 3 letters
+    @Column(name = "from_currency", nullable = false, length = 3) // ❌ Can't be empty
     private String fromCurrency;
 
+    // 💶 To Currency
     @NotBlank(message = "To Currency is required")
-    @Size(min = 3, max = 3, message = "To Currency must be exactly 3 characters")
-    @Column(name = "to_currency", nullable = false, length = 3)
+    @Size(min = 3, max = 3, message = "To Currency must be exactly 3 characters")// ✅ Must be 3 letters
+    @Column(name = "to_currency", nullable = false, length = 3)// ❌ Can't be empty
     private String toCurrency;
 
+    // ⏰ When the deal happened
     @NotNull(message = "Deal timestamp is required")
-    @Column(name = "deal_timestamp", nullable = false)
+    @Column(name = "deal_timestamp", nullable = false) // ❌ Can't be empty
     private LocalDateTime dealTimestamp;
 
+    // 💰 Deal amount
     @NotNull(message = "Deal amount is required")
-    @DecimalMin(value = "0.01", message = "Deal amount must be greater than 0")
-    @Column(name = "amount", nullable = false, precision = 19, scale = 4)
+    @DecimalMin(value = "0.01", message = "Deal amount must be greater than 0")// ✅ Must be positive
+    @Column(name = "amount", nullable = false, precision = 19, scale = 4)// Stores up to 19 digits, 4 decimals
     private BigDecimal amount;
 
-    // 🚀 Removed receivedAt since we only need deal timestamp from CSV
 
     // Default constructor
     public Deal() {

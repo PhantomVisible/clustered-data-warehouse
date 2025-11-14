@@ -1,55 +1,83 @@
 package com.amine.fx.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "fx_deals")
+@Table(name = "fx_deals", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "deal_unique_id")  // 🚀 Prevents duplicate imports
+})
 public class Deal {
 
     @Id
-    @Column(name = "deal_unique_id", nullable = false)
-    private String dealId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "from_currency", nullable = false)
+    @NotBlank(message = "Deal Unique ID is required")
+    @Column(name = "deal_unique_id", nullable = false, unique = true)
+    private String dealUniqueId;
+
+    @NotBlank(message = "From Currency is required")
+    @Size(min = 3, max = 3, message = "From Currency must be exactly 3 characters")
+    @Column(name = "from_currency", nullable = false, length = 3)
     private String fromCurrency;
 
-    @Column(name = "to_currency", nullable = false)
+    @NotBlank(message = "To Currency is required")
+    @Size(min = 3, max = 3, message = "To Currency must be exactly 3 characters")
+    @Column(name = "to_currency", nullable = false, length = 3)
     private String toCurrency;
 
+    @NotNull(message = "Deal timestamp is required")
     @Column(name = "deal_timestamp", nullable = false)
     private LocalDateTime dealTimestamp;
 
-    @Column(name = "amount", nullable = false)
+    @NotNull(message = "Deal amount is required")
+    @DecimalMin(value = "0.01", message = "Deal amount must be greater than 0")
+    @Column(name = "amount", nullable = false, precision = 19, scale = 4)
     private BigDecimal amount;
 
-    @Column(name = "received_at", nullable = false)
-    private LocalDateTime receivedAt;
+    // 🚀 Removed receivedAt since we only need deal timestamp from CSV
 
+    // Default constructor
     public Deal() {
-        // Default constructor for JPA
+        // JPA requires default constructor
     }
 
-    public Deal(String dealId, String fromCurrency, String toCurrency, LocalDateTime dealTimestamp, BigDecimal amount) {
-        this.dealId = dealId;
-        this.fromCurrency = fromCurrency;
-        this.toCurrency = toCurrency;
+    // Parameterized constructor
+    public Deal(String dealUniqueId, String fromCurrency, String toCurrency,
+                LocalDateTime dealTimestamp, BigDecimal amount) {
+        this.dealUniqueId = dealUniqueId;
+        this.fromCurrency = cleanCurrencyCode(fromCurrency);  // 🚀 Clean spaces
+        this.toCurrency = cleanCurrencyCode(toCurrency);
         this.dealTimestamp = dealTimestamp;
         this.amount = amount;
-        this.receivedAt = LocalDateTime.now();
+    }
 
-        // 🎯 Log creation of the deal
-        System.out.println("🎯 Deal created: " + this.dealId + " | " + this.fromCurrency + " -> " + this.toCurrency + " | Amount: " + this.amount);
+    // 🚀 Helper method to clean currency codes (handles " USD" -> "USD")
+    private String cleanCurrencyCode(String currency) {
+        if (currency == null) {
+            return null;
+        }
+        return currency.trim().toUpperCase();
     }
 
     // Getters and setters
-    public String getDealId() {
-        return dealId;
+    public Long getId() {
+        return id;
     }
 
-    public void setDealId(String dealId) {
-        this.dealId = dealId;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getDealUniqueId() {
+        return dealUniqueId;
+    }
+
+    public void setDealUniqueId(String dealUniqueId) {
+        this.dealUniqueId = dealUniqueId;
     }
 
     public String getFromCurrency() {
@@ -57,7 +85,7 @@ public class Deal {
     }
 
     public void setFromCurrency(String fromCurrency) {
-        this.fromCurrency = fromCurrency;
+        this.fromCurrency = cleanCurrencyCode(fromCurrency);
     }
 
     public String getToCurrency() {
@@ -65,7 +93,7 @@ public class Deal {
     }
 
     public void setToCurrency(String toCurrency) {
-        this.toCurrency = toCurrency;
+        this.toCurrency = cleanCurrencyCode(toCurrency);
     }
 
     public LocalDateTime getDealTimestamp() {
@@ -84,11 +112,14 @@ public class Deal {
         this.amount = amount;
     }
 
-    public LocalDateTime getReceivedAt() {
-        return receivedAt;
-    }
-
-    public void setReceivedAt(LocalDateTime receivedAt) {
-        this.receivedAt = receivedAt;
+    @Override
+    public String toString() {
+        return "Deal{" +
+                "dealUniqueId='" + dealUniqueId + '\'' +
+                ", fromCurrency='" + fromCurrency + '\'' +
+                ", toCurrency='" + toCurrency + '\'' +
+                ", dealTimestamp=" + dealTimestamp +
+                ", amount=" + amount +
+                '}';
     }
 }

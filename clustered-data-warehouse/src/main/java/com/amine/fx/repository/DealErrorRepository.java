@@ -4,21 +4,19 @@ import com.amine.fx.model.DealError;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-
 /**
  * Repository for persisting invalid deals into fx_deal_errors table.
- * Extends JpaRepository to get CRUD methods for free.
  */
 @Repository
 public interface DealErrorRepository extends JpaRepository<DealError, Long> {
 
     /**
-     * Check if a DealError already exists for the given dealUniqueId and occurredAt timestamp.
-     * This is used to avoid duplicating error rows for the same deal + timestamp.
+     * Check if an error already exists for the given dealUniqueId
+     * This helps avoid logging the same error multiple times
      */
-    boolean existsByDealUniqueIdAndOccurredAt(String dealUniqueId, LocalDateTime occurredAt);
+    boolean existsByDealUniqueId(String dealUniqueId);  // 🚀 Simplified - we don't need timestamp check
 
-    // You can later add custom queries if needed, e.g.:
-    // List<DealError> findByErrorReason(String reason);
+    // 🚀 You can add more query methods later if needed:
+    // List<DealError> findByErrorReasonContaining(String reason);
+    // List<DealError> findByOccurredAtAfter(LocalDateTime date);
 }
